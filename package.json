@@ -1,0 +1,17 @@
+{
+  "name": "flatbuffers_test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dudu Matei",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@types/node": "^22.0.1",
+    "filesystem": "^1.0.1",
+    "flatbuffers": "^24.3.25",
+    "fs": "^0.0.1-security"
+  }
+}

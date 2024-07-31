@@ -1,0 +1,6 @@
+table NonRequiredSchema {
+    name: string;
+    id: int;
+}
+
+root_type NonRequiredSchema;

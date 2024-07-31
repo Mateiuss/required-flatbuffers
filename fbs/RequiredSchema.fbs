@@ -1,0 +1,6 @@
+table RequiredSchema {
+    name: string (required);
+    id: int;
+}
+
+root_type RequiredSchema;
