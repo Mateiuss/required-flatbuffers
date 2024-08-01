@@ -1,7 +1,6 @@
 import * as fb from 'flatbuffers';
 import { RequiredSchema } from './gen/required-schema';
 import { NonRequiredSchema } from './gen/non-required-schema'
-import { stdout } from 'process';
 
 function init_builder() {
     return new fb.Builder(1024);
@@ -19,12 +18,17 @@ function serialize_non_required_schema(builder: fb.Builder, id: number): fb.Offs
     return NonRequiredSchema.endNonRequiredSchema(builder);
 }
 
-function print_array(builder: fb.Builder, schema: fb.Offset) {
+function print_and_return_array(builder: fb.Builder, schema: fb.Offset): Uint8Array {
     builder.finish(schema);
     let buff = builder.asUint8Array();
-    stdout.write(hexDump(Buffer.from(buff)) + "\n");
+    console.log("The serialized data seen with hexdump:");
+    console.log(hexDump(Buffer.from(buff)));
+
+    return buff;
 }
 
+
+/* Helper functions for printing an array in a hexdump-like manner */
 function printValue(value: number): string {
     if (value >= 0x20 && value <= 0x7e) {
       return String.fromCharCode(value);
@@ -73,12 +77,28 @@ function hexDump(buff: Buffer): string {
 let builder = init_builder()
 let id = 97;
 
+/* Serializing a required and a non-required schema with a missing field */
+console.log("Serializing the non-required schema");
 let non_required_schema = serialize_non_required_schema(builder, id);
-print_array(builder, non_required_schema);
+let non_required_buffer = print_and_return_array(builder, non_required_schema);
 
+console.log("Serializing the required schema");
 try {
     let required_schema = serialize_required_schema(builder, id);
-    print_array(builder, required_schema);
+    print_and_return_array(builder, required_schema);
 } catch {
-    stdout.write("Couldn't serialize data because of the missing required field\n");
+    console.log("Couldn't serialize data because of the missing required field\n");
 }
+
+/* Deserializing both a required and a non-required schema from the non_required_buffer */
+let buf = new fb.ByteBuffer(non_required_buffer);
+
+console.log("Deserializing the non-required schema:");
+let des_non_req_schema = NonRequiredSchema.getRootAsNonRequiredSchema(buf);
+console.log("The name is " + des_non_req_schema.name());
+console.log("The id is " + des_non_req_schema.id() + "\n");
+
+console.log("Deserializing the required schema:");
+let des_req_schema = RequiredSchema.getRootAsRequiredSchema(buf);
+console.log("The name is " + des_req_schema.name());
+console.log("The id is " + des_req_schema.id());
